@@ -1,0 +1,78 @@
+To plot a graph interactively in Python, the best tools depend on your environment (e.g., Jupyter Notebook, terminal, or web app). Here are some common approaches:
+
+✅ 1. In Jupyter Notebook / JupyterLab
+Use Matplotlib with the %matplotlib notebook magic for interactive zoom/pan:
+
+python
+Copy
+Edit
+%matplotlib notebook
+import matplotlib.pyplot as plt
+import numpy as np
+
+x = np.linspace(0, 10, 100)
+y = np.sin(x)
+
+plt.figure()
+plt.plot(x, y)
+plt.title("Interactive Plot")
+plt.xlabel("X")
+plt.ylabel("Y")
+plt.grid(True)
+plt.show()
+📝 %matplotlib inline gives static images, but %matplotlib notebook allows pan/zoom.
+
+✅ 2. In a Python Script (Desktop GUI)
+Use Matplotlib + plt.show() to pop up a window:
+
+python
+Copy
+Edit
+import matplotlib.pyplot as plt
+
+x = [1, 2, 3, 4, 5]
+y = [2, 3, 5, 7, 11]
+
+plt.plot(x, y)
+plt.title("Interactive GUI Plot")
+plt.show()
+This opens a separate window with interactive tools (zoom, pan, save, etc.).
+
+✅ 3. Interactive Web Plot (Plotly)
+Use Plotly for rich interactive HTML-based plots:
+
+python
+Copy
+Edit
+import plotly.express as px
+import numpy as np
+import pandas as pd
+
+x = np.linspace(0, 10, 100)
+y = np.sin(x)
+df = pd.DataFrame({'x': x, 'y': y})
+
+fig = px.line(df, x='x', y='y', title='Interactive Plotly Graph')
+fig.show()
+Works in Jupyter or web-based apps. Hover, zoom, pan, download supported.
+
+✅ 4. With Interactive Widgets (Jupyter + ipywidgets)
+python
+Copy
+Edit
+from ipywidgets import interact
+import matplotlib.pyplot as plt
+import numpy as np
+
+def plot_sine(freq=1.0):
+    x = np.linspace(0, 2*np.pi, 500)
+    y = np.sin(freq * x)
+    plt.plot(x, y)
+    plt.title(f"Sine Wave: {freq} Hz")
+    plt.grid(True)
+    plt.show()
+
+interact(plot_sine, freq=(0.1, 10.0, 0.1))
+Lets you create sliders/dropdowns for dynamic plots in Jupyter.
+
+Let me know your setup (e.g., Jupyter, VSCode, terminal, or web app), and I’ll tailor a solution further.
