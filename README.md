@@ -34,4 +34,4 @@ See the `docs/` directory for additional documentation and how-to guides.
 
 ## License
 
-[Add your license information here] 
+[Add your license information here] # closed_curve
