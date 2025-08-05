@@ -72,12 +72,12 @@ def test_installation():
     
     try:
         # Test direct imports
-        from atpoe.core.curve_generator import generate_initial_circle
+        from atpoe.core.curve_generator import generate_circle_polygon
         
         print("✅ Core modules imported successfully")
         
         # Quick functionality test
-        curve = generate_initial_circle(1000, 450)
+        curve = generate_circle_polygon(100, 450)
         print(f"✅ Curve generation works ({len(curve)} segments)")
         
         return True
@@ -98,11 +98,12 @@ Quick AtPoE test script
 """
 
 try:
-    from atpoe.core.curve_generator import generate_initial_circle
+    from atpoe.core.curve_generator import generate_circle_polygon
     from PIL import Image, ImageDraw
     
     # Generate test curve
-    curve = generate_initial_circle(1000, 450)
+    curve = generate_circle_polygon(100, 450)
+    curve = [(x + 500, y + 500) for x, y in curve]  # Center the curve
     
     # Create image
     image = Image.new('RGB', (1000, 1000), 'white')
@@ -142,8 +143,8 @@ def show_usage():
     print("   atpoe --curves 10 --length 15 --error 1.5")
     
     print("\n3. Python API:")
-    print("   from atpoe.core.curve_generator import generate_initial_circle")
-    print("   curve = generate_initial_circle(1000, 450)")
+    print("   from atpoe.core.curve_generator import generate_circle_polygon")
+    print("   curve = generate_circle_polygon(100, 450)")
 
 
 def main():

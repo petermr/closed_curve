@@ -6,12 +6,13 @@ Command-line interface for AtPoE (Admitting the Possibilities of Error).
 import argparse
 import sys
 import os
+import math
 from pathlib import Path
 
 # Add parent directory to path for imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from atpoe.core.curve_generator import generate_nested_curve, generate_initial_circle
+from atpoe.core.curve_generator import generate_circle_polygon, perturb_polygon
 from PIL import Image, ImageDraw
 
 
@@ -24,11 +25,19 @@ def create_curves(num_curves, length, error, canvas_size=1000, output_file=None)
     
     # Generate curves
     curves = []
+    center_x = canvas_size // 2
+    center_y = canvas_size // 2
+    
     for i in range(num_curves):
         if i == 0:
-            curve = generate_initial_circle(canvas_size, 450)
+            # Generate initial circle
+            radius = 450
+            n_points = int(2 * math.pi * radius / length)
+            curve = generate_circle_polygon(n_points, radius)
+            curve = [(x + center_x, y + center_y) for x, y in curve]
         else:
-            curve = generate_nested_curve(curves[-1], length, length, error)
+            # Generate nested curve
+            curve = perturb_polygon(curves[-1], length, error)
         
         curves.append(curve)
         print(f"Generated curve {i+1} ({len(curve)} segments)")
