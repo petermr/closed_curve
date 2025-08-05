@@ -42,21 +42,35 @@ def install_atpoe_fast():
         return False
     
     try:
-        # Quick development install
-        result = subprocess.run(
-            "pip install -e .", 
-            shell=True, 
-            capture_output=True, 
-            text=True,
-            timeout=60  # 1 minute timeout
-        )
+        # Quick development install (try pip3 first, fallback to pip)
+        install_commands = ["pip3 install -e .", "pip install -e ."]
         
-        if result.returncode == 0:
-            print("✅ AtPoE installed successfully!")
-            return True
-        else:
-            print(f"❌ Installation failed: {result.stderr}")
-            return False
+        for cmd in install_commands:
+            try:
+                result = subprocess.run(
+                    cmd, 
+                    shell=True, 
+                    capture_output=True, 
+                    text=True,
+                    timeout=60  # 1 minute timeout
+                )
+                
+                if result.returncode == 0:
+                    print(f"✅ AtPoE installed successfully using {cmd.split()[0]}!")
+                    return True
+                else:
+                    print(f"❌ {cmd.split()[0]} failed: {result.stderr}")
+                    continue
+                    
+            except subprocess.TimeoutExpired:
+                print(f"❌ {cmd.split()[0]} installation timed out")
+                continue
+            except Exception as e:
+                print(f"❌ {cmd.split()[0]} installation error: {e}")
+                continue
+        
+        print("❌ All installation methods failed")
+        return False
             
     except subprocess.TimeoutExpired:
         print("❌ Installation timed out")
