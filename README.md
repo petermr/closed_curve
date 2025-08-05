@@ -19,8 +19,29 @@ closed_curve/
 ├── INSTALLATION.md              # Detailed installation instructions
 ├── USAGE_GUIDE.md               # How to use the application
 ├── EXAMPLES.md                  # Example parameters and results
-├── step6_final_version.py       # Main application (latest version)
 ├── step6_summary.md             # Technical summary of Step 6
+├── experiments/                 # All experimental steps
+│   ├── step1_circle/            # Basic circle drawing
+│   │   ├── step1_circle.py
+│   │   └── output/
+│   ├── step2_gui/               # GUI implementation
+│   │   ├── step2_gui.py
+│   │   ├── step2_offset_curve.py
+│   │   ├── step2_parallel_curve.py
+│   │   └── output/
+│   ├── step3_nested_curves/     # Basic nested curves
+│   │   ├── step3_nested_curves.py
+│   │   └── output/
+│   ├── step4_angle_free_curves/ # Angle-free approach
+│   │   ├── step4_angle_free_curves.py
+│   │   ├── step4_truly_angle_free.py
+│   │   └── output/
+│   ├── step5_correct_approach/  # Refined approach
+│   │   ├── step5_correct_approach.py
+│   │   └── output/
+│   └── step6_final_version/     # Final version (latest)
+│       ├── step6_final_version.py
+│       └── output/
 ├── images/                      # Generated images
 │   ├── step6_final_curves_*.png # PNG format images
 │   └── step6_final_curves_*.svg # SVG format images
@@ -48,7 +69,7 @@ closed_curve/
 
 ### Running the Application
 ```bash
-streamlit run step6_final_version.py
+streamlit run experiments/step6_final_version/step6_final_version.py
 ```
 
 The application will open in your web browser at `http://localhost:8501`
