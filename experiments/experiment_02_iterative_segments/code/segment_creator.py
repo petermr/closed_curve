@@ -62,12 +62,8 @@ def create_next_closed_curve(previous_curve, dist, error=DEFAULT_ERROR,
     new_curve.append(first_point)
     current_point = first_point
     
-    # Go round the previous curve - sample at regular intervals
-    # Target about 100 points for the new curve
-    target_points = min(100, len(previous_curve) // 10)
-    step_size = len(previous_curve) // target_points
-    
-    for i in range(step_size, len(previous_curve), step_size):
+    # Go round the previous curve
+    for i in range(1, len(previous_curve)):
         outer_point = previous_curve[i]
         
         # Calculate target point inside this outer point
@@ -84,11 +80,8 @@ def create_next_closed_curve(previous_curve, dist, error=DEFAULT_ERROR,
             outer_point[1] + (dy / d) * dist + error_y
         )
         
-        # Move toward target in steps of segment_length, but limit total segments
-        segments_to_target = 0
-        max_segments_per_target = 5  # Limit segments per target
-        
-        while distance(current_point, target_point) > segment_length and segments_to_target < max_segments_per_target:
+        # Move toward target in steps of segment_length
+        while distance(current_point, target_point) > segment_length:
             # Calculate direction to target
             dx_to_target = target_point[0] - current_point[0]
             dy_to_target = target_point[1] - current_point[1]
@@ -102,7 +95,6 @@ def create_next_closed_curve(previous_curve, dist, error=DEFAULT_ERROR,
             
             new_curve.append(new_point)
             current_point = new_point
-            segments_to_target += 1
     
     # Close the curve: keep adding points until close to start
     while distance(current_point, new_curve[0]) > segment_length:
