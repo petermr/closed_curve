@@ -1,10 +1,11 @@
 """
-atpoe/core/curve_generator.py - Working curve generation functions
+step6_final_version.py - Working version of closed curve generator
 
-This module provides the core functions for generating nested curves:
-- generate_initial_circle: Creates the starting circle
-- generate_nested_curve: Creates inward-progressing curves with error
-- do_lines_intersect: Collision detection using CCW algorithm
+This version generates nested curves that:
+- Start with a circle of given radius
+- Generate inward-progressing curves with human-like error
+- Do not cross themselves or earlier curves
+- Use proper coordinate system centered at canvas center
 """
 
 import math
@@ -131,7 +132,7 @@ def generate_nested_curve(outer_curve, length, error, segment_length=3):
         
         # Check if we're close enough to start point
         distance_to_start = math.hypot(new_x - start_point[0], new_y - start_point[1])
-        if distance_to_start <= segment_length and len(new_curve) > 10:  # Need at least some points
+        if distance_to_start <= segment_length:
             break
         
         current_point = new_point
@@ -166,3 +167,27 @@ def draw_curves(curves, canvas_size, output_file):
     
     img.save(output_file)
     print(f"Curves saved to {output_file}")
+
+def main():
+    """Main function to generate and draw curves."""
+    canvas_size = 1000
+    initial_radius = 450
+    num_curves = 5
+    length = 15
+    error = 2.4
+    segment_length = 3  # Small segment length for smooth curves
+    
+    # Generate initial circle
+    curves = [generate_initial_circle(canvas_size, initial_radius, segment_length)]
+    
+    # Generate nested curves
+    for i in range(num_curves - 1):
+        new_curve = generate_nested_curve(curves[-1], length, error, segment_length)
+        if new_curve:
+            curves.append(new_curve)
+    
+    # Draw all curves
+    draw_curves(curves, canvas_size, "step6_output.png")
+
+if __name__ == "__main__":
+    main() 

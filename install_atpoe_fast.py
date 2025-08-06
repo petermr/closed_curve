@@ -42,35 +42,21 @@ def install_atpoe_fast():
         return False
     
     try:
-        # Quick development install (try pip3 first, fallback to pip)
-        install_commands = ["pip3 install -e .", "pip install -e ."]
+        # Quick development install
+        result = subprocess.run(
+            "pip install -e .", 
+            shell=True, 
+            capture_output=True, 
+            text=True,
+            timeout=60  # 1 minute timeout
+        )
         
-        for cmd in install_commands:
-            try:
-                result = subprocess.run(
-                    cmd, 
-                    shell=True, 
-                    capture_output=True, 
-                    text=True,
-                    timeout=60  # 1 minute timeout
-                )
-                
-                if result.returncode == 0:
-                    print(f"✅ AtPoE installed successfully using {cmd.split()[0]}!")
-                    return True
-                else:
-                    print(f"❌ {cmd.split()[0]} failed: {result.stderr}")
-                    continue
-                    
-            except subprocess.TimeoutExpired:
-                print(f"❌ {cmd.split()[0]} installation timed out")
-                continue
-            except Exception as e:
-                print(f"❌ {cmd.split()[0]} installation error: {e}")
-                continue
-        
-        print("❌ All installation methods failed")
-        return False
+        if result.returncode == 0:
+            print("✅ AtPoE installed successfully!")
+            return True
+        else:
+            print(f"❌ Installation failed: {result.stderr}")
+            return False
             
     except subprocess.TimeoutExpired:
         print("❌ Installation timed out")
@@ -86,12 +72,12 @@ def test_installation():
     
     try:
         # Test direct imports
-        from atpoe.core.curve_generator import generate_circle_polygon
+        from atpoe.core.curve_generator import generate_initial_circle
         
         print("✅ Core modules imported successfully")
         
         # Quick functionality test
-        curve = generate_circle_polygon(100, 450)
+        curve = generate_initial_circle(1000, 450)
         print(f"✅ Curve generation works ({len(curve)} segments)")
         
         return True
@@ -112,12 +98,11 @@ Quick AtPoE test script
 """
 
 try:
-    from atpoe.core.curve_generator import generate_circle_polygon
+    from atpoe.core.curve_generator import generate_initial_circle
     from PIL import Image, ImageDraw
     
     # Generate test curve
-    curve = generate_circle_polygon(100, 450)
-    curve = [(x + 500, y + 500) for x, y in curve]  # Center the curve
+    curve = generate_initial_circle(1000, 450)
     
     # Create image
     image = Image.new('RGB', (1000, 1000), 'white')
@@ -157,8 +142,8 @@ def show_usage():
     print("   atpoe --curves 10 --length 15 --error 1.5")
     
     print("\n3. Python API:")
-    print("   from atpoe.core.curve_generator import generate_circle_polygon")
-    print("   curve = generate_circle_polygon(100, 450)")
+    print("   from atpoe.core.curve_generator import generate_initial_circle")
+    print("   curve = generate_initial_circle(1000, 450)")
 
 
 def main():

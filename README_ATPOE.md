@@ -32,14 +32,13 @@ atpoe --curves 20 --length 10 --error 2.4 --output my_curves.png
 
 #### Python API
 ```python
-from atpoe.core.curve_generator import generate_circle_polygon, perturb_polygon
+from atpoe.core.curve_generator import generate_initial_circle, generate_nested_curve
 
 # Generate initial circle
-curve = generate_circle_polygon(100, 450)
-curve = [(x + 500, y + 500) for x, y in curve]  # Center it
+curve = generate_initial_circle(1000, 450)
 
 # Generate nested curve
-nested_curve = perturb_polygon(curve, 15, 1.5)
+nested_curve = generate_nested_curve(curve, 15, 15, 1.5)
 ```
 
 ## Parameters
@@ -61,12 +60,11 @@ nested_curve = perturb_polygon(curve, 15, 1.5)
 
 ### Basic Curve Generation
 ```python
-from atpoe.core.curve_generator import generate_circle_polygon
+from atpoe.core.curve_generator import generate_initial_circle
 from PIL import Image, ImageDraw
 
 # Generate curve
-curve = generate_circle_polygon(100, 450)
-curve = [(x + 500, y + 500) for x, y in curve]  # Center it
+curve = generate_initial_circle(1000, 450)
 
 # Create image
 image = Image.new('RGB', (1000, 1000), 'white')
@@ -95,7 +93,7 @@ python test_atpoe_quick.py
 atpoe --curves 5 --length 15 --error 1.5 --output test.png
 
 # Test Python import
-python -c "from atpoe.core.curve_generator import generate_circle_polygon; print('AtPoE works!')"
+python -c "from atpoe.core.curve_generator import generate_initial_circle; print('AtPoE works!')"
 ```
 
 ## Dependencies

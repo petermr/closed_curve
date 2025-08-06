@@ -11,15 +11,4 @@ found in hand-drawn curves.
 
 __version__ = "1.0.0"
 __author__ = "Closed Curve Team"
-__email__ = "team@atpoe.org"
-
-# Package metadata only - no executable code
-__all__ = [
-    "generate_nested_curve",
-    "generate_initial_circle", 
-    "IncrementalCollisionDetector",
-    "GraphicsBundle",
-    "BundleLibrary", 
-    "StrokeStyle",
-    "InteractiveCurveDrawer",
-] 
+__email__ = "team@atpoe.org" 
