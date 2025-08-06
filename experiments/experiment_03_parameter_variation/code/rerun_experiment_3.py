@@ -57,88 +57,14 @@ def create_labeled_image(curves, canvas_size, output_file, params, num_curves):
     print(f"Labeled image saved to: {output_file}")
 
 def create_labeled_svg(curves, canvas_size, output_file, params, num_curves):
-    """Create SVG with parameter labels."""
+    """Create SVG with parameter labels - using ALL points (no sampling)."""
     # Check total points to estimate file size
     total_points = sum(len(curve) for curve in curves)
     estimated_size_mb = total_points * 0.01  # Rough estimate: ~10KB per 1000 points
     
-    if estimated_size_mb > 2:  # Lower limit for large curves
-        print(f"WARNING: Estimated SVG size would be ~{estimated_size_mb:.1f}MB (>2MB limit)")
-        print(f"Creating simplified SVG with reduced points...")
-        
-        # Create simplified SVG with fewer points
-        svg = ET.Element('svg', {
-            'width': str(canvas_size),
-            'height': str(canvas_size),
-            'xmlns': 'http://www.w3.org/2000/svg',
-            'version': '1.1'
-        })
-        
-        # Add background rectangle
-        background = ET.SubElement(svg, 'rect', {
-            'width': str(canvas_size),
-            'height': str(canvas_size),
-            'fill': 'white'
-        })
-        
-        # Color mapping
-        colors = ['black', 'blue', 'red', 'green', 'purple', 'orange', 'brown', 'pink']
-        
-        # Add curves as simplified path elements (every 10th point)
-        for i, curve in enumerate(curves):
-            if len(curve) < 2:
-                continue
-            
-            color = colors[i % len(colors)]
-            
-            # Sample every 10th point to reduce file size
-            sampled_curve = curve[::10]
-            if len(sampled_curve) < 2:
-                sampled_curve = curve[::5]  # If still too few, sample every 5th
-            if len(sampled_curve) < 2:
-                sampled_curve = curve  # Use all points if necessary
-            
-            # Create path data
-            path_data = f"M {sampled_curve[0][0]:.1f} {sampled_curve[0][1]:.1f}"
-            for point in sampled_curve[1:]:
-                path_data += f" L {point[0]:.1f} {point[1]:.1f}"
-            
-            # Add path element
-            path = ET.SubElement(svg, 'path', {
-                'd': path_data,
-                'stroke': color,
-                'stroke-width': '2',
-                'fill': 'none'
-            })
-        
-        # Add parameter labels as text elements
-        label_text = f"Distance: {params['dist']}px, Segment: {params['segment_length']}px, Error: {params['error']} (Simplified)"
-        text = ET.SubElement(svg, 'text', {
-            'x': '10',
-            'y': '25',
-            'font-family': 'Arial',
-            'font-size': '16',
-            'fill': 'black'
-        })
-        text.text = label_text
-        
-        curve_count_text = f"Curves: {num_curves} (Simplified)"
-        text2 = ET.SubElement(svg, 'text', {
-            'x': '10',
-            'y': '45',
-            'font-family': 'Arial',
-            'font-size': '16',
-            'fill': 'black'
-        })
-        text2.text = curve_count_text
-        
-        # Write SVG file
-        tree = ET.ElementTree(svg)
-        tree.write(output_file, encoding='utf-8', xml_declaration=True)
-        print(f"Simplified SVG saved to: {output_file}")
-        return True
+    print(f"Creating SVG with ALL {total_points} points (estimated size: ~{estimated_size_mb:.1f}MB)")
     
-    # Create full SVG for smaller files
+    # Create SVG with ALL points (no sampling)
     svg = ET.Element('svg', {
         'width': str(canvas_size),
         'height': str(canvas_size),
@@ -156,17 +82,17 @@ def create_labeled_svg(curves, canvas_size, output_file, params, num_curves):
     # Color mapping
     colors = ['black', 'blue', 'red', 'green', 'purple', 'orange', 'brown', 'pink']
     
-    # Add curves as path elements
+    # Add curves as path elements with ALL points
     for i, curve in enumerate(curves):
         if len(curve) < 2:
             continue
         
         color = colors[i % len(colors)]
         
-        # Create path data
-        path_data = f"M {curve[0][0]} {curve[0][1]}"
+        # Create path data with ALL points (no sampling) - formatted to 2 decimals
+        path_data = f"M {curve[0][0]:.2f} {curve[0][1]:.2f}"
         for point in curve[1:]:
-            path_data += f" L {point[0]} {point[1]}"
+            path_data += f" L {point[0]:.2f} {point[1]:.2f}"
         
         # Add path element
         path = ET.SubElement(svg, 'path', {
@@ -187,7 +113,7 @@ def create_labeled_svg(curves, canvas_size, output_file, params, num_curves):
     })
     text.text = label_text
     
-    curve_count_text = f"Curves: {num_curves}"
+    curve_count_text = f"Curves: {num_curves} (All Points)"
     text2 = ET.SubElement(svg, 'text', {
         'x': '10',
         'y': '45',
@@ -200,7 +126,7 @@ def create_labeled_svg(curves, canvas_size, output_file, params, num_curves):
     # Write SVG file
     tree = ET.ElementTree(svg)
     tree.write(output_file, encoding='utf-8', xml_declaration=True)
-    print(f"Labeled SVG saved to: {output_file}")
+    print(f"Full SVG with all points saved to: {output_file}")
     return True
 
 def run_experiment_3_with_curves(num_curves):
