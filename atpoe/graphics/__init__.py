@@ -1,6 +1,1 @@
-"""
-Graphics and styling functionality for AtPoE.
-"""
-
-# Package metadata only - no executable code
-__all__ = ["GraphicsBundle", "BundleLibrary", "StrokeStyle"] 
+# Empty __init__.py file as per style rules 

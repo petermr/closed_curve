@@ -5,17 +5,21 @@ Command-line interface for AtPoE (Admitting the Possibilities of Error).
 
 import argparse
 import sys
-import os
 from pathlib import Path
-
-# Add parent directory to path for imports
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from typing import List, Tuple, Optional
 
 from atpoe.core.curve_generator import generate_nested_curve, generate_initial_circle
 from PIL import Image, ImageDraw
 
 
-def create_curves(num_curves, length, error, canvas_size=1000, output_file=None):
+def create_curves(
+    num_curves: int, 
+    segment_length: int, 
+    error: float, 
+    inter_curve_distance: int, 
+    canvas_size: int = 1000, 
+    output_file: Optional[str] = None
+) -> List[List[Tuple[float, float]]]:
     """Generate and save curves using command line parameters."""
     
     # Initialize
@@ -24,21 +28,29 @@ def create_curves(num_curves, length, error, canvas_size=1000, output_file=None)
     
     # Generate curves
     curves = []
+    colors = ['black', 'blue', 'red', 'green', 'purple', 'orange', 'brown', 'pink', 'gray', 'cyan']
+    
     for i in range(num_curves):
         if i == 0:
-            curve = generate_initial_circle(canvas_size, 450)
+            curve = generate_initial_circle(canvas_size, 450, segment_length)
         else:
-            curve = generate_nested_curve(curves[-1], length, length, error)
+            curve = generate_nested_curve(curves[-1], inter_curve_distance, error, segment_length)
         
         curves.append(curve)
         print(f"Generated curve {i+1} ({len(curve)} segments)")
+        
+        # Debug: print first few points of each curve
+        if len(curve) > 0:
+            print(f"  Curve {i+1} starts at: {curve[0]}")
+            print(f"  Curve {i+1} ends at: {curve[-1]}")
     
-    # Draw curves
-    for curve in curves:
+    # Draw curves with different colors
+    for i, curve in enumerate(curves):
+        color = colors[i % len(colors)]
         for j in range(len(curve)):
             p1 = curve[j]
             p2 = curve[(j + 1) % len(curve)]
-            draw.line([p1, p2], fill='black', width=3)
+            draw.line([p1, p2], fill=color, width=2)
     
     # Save or display
     if output_file:
@@ -50,15 +62,15 @@ def create_curves(num_curves, length, error, canvas_size=1000, output_file=None)
     return curves
 
 
-def main():
+def main() -> None:
     """Main CLI function."""
     parser = argparse.ArgumentParser(
         description="AtPoE - Admitting the Possibilities of Error",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  atpoe --curves 10 --length 15 --error 1.5
-  atpoe --curves 20 --length 10 --error 2.4 --output my_curves.png
+  atpoe --curves 10 --segment-length 15 --error 1.5 --distance 6
+  atpoe --curves 20 --segment-length 10 --error 2.4 --distance 8 --output my_curves.png
         """
     )
     
@@ -70,17 +82,24 @@ Examples:
     )
     
     parser.add_argument(
-        '--length', '-l',
+        '--segment-length', '-l',
         type=int,
-        default=15,
-        help='Length of curve segments (default: 15)'
+        default=3,
+        help='Length of each line segment in pixels (default: 3)'
     )
     
     parser.add_argument(
         '--error', '-e',
         type=float,
         default=1.5,
-        help='Error level for human-like variation (default: 1.5)'
+        help='Error level for human-like variation in pixels (default: 1.5)'
+    )
+    
+    parser.add_argument(
+        '--distance', '-d',
+        type=int,
+        default=6,
+        help='Distance between curves in pixels (default: 6)'
     )
     
     parser.add_argument(
@@ -108,8 +127,9 @@ Examples:
     try:
         curves = create_curves(
             args.curves,
-            args.length,
+            args.segment_length,
             args.error,
+            args.distance,
             args.canvas_size,
             args.output
         )

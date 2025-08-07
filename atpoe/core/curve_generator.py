@@ -21,7 +21,13 @@ def generate_initial_circle(canvas_size, radius, segment_length=3):
     current_point = start_point
     points.append(current_point)
     
-    while True:
+    # Safety limit to prevent infinite loops
+    max_iterations = int(2 * math.pi * radius / segment_length) + 100
+    iteration_count = 0
+    
+    while iteration_count < max_iterations:
+        iteration_count += 1
+        
         # Calculate next point on circle at segment_length distance
         # Move clockwise around the circle
         dx = current_point[0] - center_x
@@ -45,6 +51,9 @@ def generate_initial_circle(canvas_size, radius, segment_length=3):
         
         current_point = new_point
     
+    if iteration_count >= max_iterations:
+        print(f"Warning: Circle generation reached maximum iterations ({max_iterations})")
+    
     return points
 
 def generate_nested_curve(outer_curve, length, error, segment_length=3):
@@ -58,84 +67,79 @@ def generate_nested_curve(outer_curve, length, error, segment_length=3):
     
     new_curve = []
     
-    # Find a good starting point (furthest from center)
-    max_dist = 0
-    start_outer_point = None
-    for ox, oy in outer_curve:
-        dist = math.hypot(ox - center_x, oy - center_y)
-        if dist > max_dist:
-            max_dist = dist
-            start_outer_point = (ox, oy)
+    # Start at first point of previous curve
+    outer_point = outer_curve[0]
     
-    if not start_outer_point:
-        return None
+    # Calculate first point inside
+    dx = center_x - outer_point[0]
+    dy = center_y - outer_point[1]
+    d = math.hypot(dx, dy) or 1.0
     
-    # Calculate first point of new curve
-    ox, oy = start_outer_point
-    dx = center_x - ox
-    dy = center_y - oy
-    dist = math.hypot(dx, dy) or 1.0
-    
-    # Normalize and apply length
-    dx = dx / dist * length
-    dy = dy / dist * length
-    
-    # Add error
+    # Add small random error
     error_x = random.uniform(-error, error)
     error_y = random.uniform(-error, error)
     
-    start_point = (ox + dx + error_x, oy + dy + error_y)
-    current_point = start_point
-    new_curve.append(current_point)
+    # Place first point at length distance inside
+    first_point = (
+        outer_point[0] + (dx / d) * length + error_x,
+        outer_point[1] + (dy / d) * length + error_y
+    )
     
-    while True:
-        # Find closest point on outer curve to current point
-        min_dist = float('inf')
-        closest_outer_point = None
+    new_curve.append(first_point)
+    current_point = first_point
+    
+    # Go round the previous curve systematically
+    for i in range(1, len(outer_curve)):
+        outer_point = outer_curve[i]
         
-        for ox, oy in outer_curve:
-            dist = math.hypot(current_point[0] - ox, current_point[1] - oy)
-            if dist < min_dist:
-                min_dist = dist
-                closest_outer_point = (ox, oy)
+        # Calculate target point inside this outer point
+        dx = center_x - outer_point[0]
+        dy = center_y - outer_point[1]
+        d = math.hypot(dx, dy) or 1.0
         
-        if not closest_outer_point:
-            break
-        
-        # Calculate direction from outer curve point to center
-        ox, oy = closest_outer_point
-        dx = center_x - ox
-        dy = center_y - oy
-        dist = math.hypot(dx, dy) or 1.0
-        
-        # Normalize and apply length
-        dx = dx / dist * length
-        dy = dy / dist * length
-        
-        # Add error
+        # Add small random error
         error_x = random.uniform(-error, error)
         error_y = random.uniform(-error, error)
         
-        # Calculate new point at segment_length distance from current point
-        # in the direction of (dx, dy)
-        total_dx = dx + error_x
-        total_dy = dy + error_y
-        total_dist = math.hypot(total_dx, total_dy) or 1.0
+        target_point = (
+            outer_point[0] + (dx / d) * length + error_x,
+            outer_point[1] + (dy / d) * length + error_y
+        )
         
-        # Normalize to segment_length
-        new_x = current_point[0] + (total_dx / total_dist) * segment_length
-        new_y = current_point[1] + (total_dy / total_dist) * segment_length
+        # Move toward target in steps of segment_length
+        while math.hypot(current_point[0] - target_point[0], current_point[1] - target_point[1]) > segment_length:
+            # Calculate direction to target
+            dx_to_target = target_point[0] - current_point[0]
+            dy_to_target = target_point[1] - current_point[1]
+            d_to_target = math.hypot(dx_to_target, dy_to_target) or 1.0
+            
+            # Add new point at segment_length distance
+            new_point = (
+                current_point[0] + (dx_to_target / d_to_target) * segment_length,
+                current_point[1] + (dy_to_target / d_to_target) * segment_length
+            )
+            
+            new_curve.append(new_point)
+            current_point = new_point
+    
+    # Close the curve: keep adding points until close to start
+    while math.hypot(current_point[0] - new_curve[0][0], current_point[1] - new_curve[0][1]) > segment_length:
+        # Calculate direction to start
+        dx_to_start = new_curve[0][0] - current_point[0]
+        dy_to_start = new_curve[0][1] - current_point[1]
+        d_to_start = math.hypot(dx_to_start, dy_to_start) or 1.0
         
-        new_point = (new_x, new_y)
+        # Add new point at segment_length distance
+        new_point = (
+            current_point[0] + (dx_to_start / d_to_start) * segment_length,
+            current_point[1] + (dy_to_start / d_to_start) * segment_length
+        )
+        
         new_curve.append(new_point)
-        
-        # Check if we're close enough to start point
-        distance_to_start = math.hypot(new_x - start_point[0], new_y - start_point[1])
-        if distance_to_start <= segment_length and len(new_curve) > 10:  # Need at least some points
-            break
-        
         current_point = new_point
     
+    # Final closure
+    new_curve.append(new_curve[0])
     return new_curve
 
 def do_lines_intersect(p1, p2, p3, p4):
